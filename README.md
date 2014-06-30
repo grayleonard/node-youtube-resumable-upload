@@ -10,7 +10,7 @@ Benchmarked with an 800mb video - this module bypasses the filesize restrictions
 How to Use
 ==========
 
-Look at test/test.js for a use-case example, but this is the gist of it:
+Look at test/test.js for a use-case example, but this is the gist of it (after `npm install`ing):
 ```
 var ResumableUpload = require('index.js');
 var resumableUpload = new ResumableUpload(); //create new ResumableUpload
