@@ -9,7 +9,7 @@ var upload = function() {
       status: { privacyStatus: 'private' }};
   var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.tokens = tokens;
-  resumableUpload.filepath = './video.mp4';
+  resumableUpload.filepath = 'video.mp4';
   resumableUpload.metadata = metadata;
   resumableUpload.monitor = true;
   resumableUpload.initUpload(function(result) {

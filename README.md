@@ -10,9 +10,11 @@ Benchmarked with an 800mb video - this module bypasses the filesize restrictions
 How to Use
 ==========
 
-Look at test/test.js for a use-case example, but this is the gist of it (after `npm install`ing):
+Install with `npm install node-youtube-resumable-upload`
+
+Look at test/test.js for a use-case example, but this is the gist of it:
 ```
-var ResumableUpload = require('index.js');
+var ResumableUpload = require('node-youtube-resumable-upload');
 var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.tokens = tokens; //Google OAuth2 tokens
   resumableUpload.filepath = './video.mp4';
