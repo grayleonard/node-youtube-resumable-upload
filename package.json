@@ -1,0 +1,35 @@
+{
+  "name": "node-youtube-resumable-upload",
+  "version": "0.0.0",
+  "description": "Create resumable uploads via googleapis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gray Leonard",
+  "license": "ISC",
+  "dependencies": {
+    "google-auth-cli": "0.0.1",
+    "googleapis": "^0.7.0",
+    "request": "^2.36.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grayleonard/node-youtube-resumable-upload.git"
+  },
+  "keywords": [
+    "youtube",
+    "google",
+    "resumable",
+    "upload",
+    "googleapis"
+  ],
+  "bugs": {
+    "url": "https://github.com/grayleonard/node-youtube-resumable-upload/issues"
+  },
+  "homepage": "https://github.com/grayleonard/node-youtube-resumable-upload"
+}
