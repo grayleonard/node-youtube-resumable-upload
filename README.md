@@ -12,6 +12,8 @@ How to Use
 
 Install with `npm install node-youtube-resumable-upload`
 
+If all goes right, the module returns the video metadata that Google responds with on a successful upload.
+
 Look at test/test.js for a use-case example, but this is the gist of it:
 ```
 var ResumableUpload = require('node-youtube-resumable-upload');
