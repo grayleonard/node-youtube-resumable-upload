@@ -8,6 +8,8 @@ Benchmarked with an 800mb video - this module bypasses the filesize restrictions
 How to Use
 ==========
 
+Requires OAuth2 tokens from google - packages such as `googleapis` (the official nodejs client), `Passport` and `google-auth-cli` can be used.
+
 Install with `npm install node-youtube-resumable-upload`
 
 The module returns the video metadata that Google responds with on a successful upload.
