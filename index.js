@@ -1,6 +1,7 @@
 var fs = require('fs');
 var google = require('googleapis');
 var request = require('request');
+var EventEmitter = require('events').EventEmitter;
 
 function resumableUpload() {
   this.byteCount = 0; //init variables
@@ -11,6 +12,8 @@ function resumableUpload() {
 };
 
 //Init the upload by POSTing google for an upload URL (saved to self.location)
+resumableUpload.prototype.eventEmitter = new EventEmitter();
+
 resumableUpload.prototype.initUpload = function(callback) {
   var self = this;
   var options = {
@@ -63,12 +66,10 @@ resumableUpload.prototype.putUpload = function(callback) {
         self.getProgress();
         self.initUpload();
       }
-    })); //piping is here, handles the request callback
-    uploadPipe.on('error', function() {});
-    uploadPipe.on('close', function() {});
+    }));
   } catch(e) {
     console.log(e.printStackTrace());
-    //Restart upload();
+    //Restart upload
     self.getProgress();
     self.initUpload();
   }
@@ -88,7 +89,7 @@ resumableUpload.prototype.startMonitoring = function() {
   var healthCheck = function() { //Get # of bytes uploaded
     request.put(options, function(error, response, body) {
       if(!error && response.headers.range != undefined) {
-        console.log('Progress: ' + response.headers.range.substring(8, response.headers.range.length) + '/' + fs.statSync(self.filepath).size);
+        self.eventEmitter.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + fs.statSync(self.filepath).size);
         if(response.headers.range == fs.statSync(self.filepath).size) {
           clearInterval(healthCheckInteral);
         }

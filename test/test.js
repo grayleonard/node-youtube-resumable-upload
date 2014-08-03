@@ -9,9 +9,12 @@ var upload = function() {
       status: { privacyStatus: 'private' }};
   var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.tokens = tokens;
-  resumableUpload.filepath = 'video.mp4';
+  resumableUpload.filepath = '../thescore.mp4';
   resumableUpload.metadata = metadata;
   resumableUpload.monitor = true;
+resumableUpload.eventEmitter.on('progress', function(progress) {
+	console.log(progress);
+});
   resumableUpload.initUpload(function(result) {
     console.log(result);
     return;

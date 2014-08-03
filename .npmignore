@@ -1,1 +1,4 @@
 test/secrets.json
+*.mp4
+node_modules/
+*.log
