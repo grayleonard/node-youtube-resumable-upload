@@ -9,13 +9,15 @@ function resumableUpload() {
   this.filepath = '';
   this.metadata = {};
   this.monitor = false;
+  this.retry = 0;
 };
 
 //Init the upload by POSTing google for an upload URL (saved to self.location)
 resumableUpload.prototype.eventEmitter = new EventEmitter();
 
-resumableUpload.prototype.initUpload = function(callback) {
+resumableUpload.prototype.initUpload = function(callback, errorback) {
   var self = this;
+    
   var options = {
       url: 'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status,contentDetails',
       headers: {
@@ -31,22 +33,40 @@ resumableUpload.prototype.initUpload = function(callback) {
   //Send request and start upload if success
   request.post(options, function(error, response, body) {
     if(!error) {
-      console.log('Location: ' + response.headers.location + ' ...');
+      
+      if(!response.headers.location && body){
+          // bad-token, bad-metadata, etc...
+          body = JSON.parse(body);
+
+          if(body.error){
+              if(errorback)
+                    errorback(new Error(body.error));
+              return;
+          }
+      }
+      
+        
+      //console.log('Location: ' + response.headers.location + ' ...');
       self.location = response.headers.location;
+      
       //once we get the location to upload to, we start the upload
-      console.log('Starting upload ...');
-      self.putUpload(function(result) {
-        callback(result); //upload successful, returning
-      });
-      if(self.monitor) //start monitoring if the bool 'monitor' is true (defaults to false)
-        console.log('Starting monitor ...');
+      //console.log('Starting upload ...');
+      self.putUpload(callback, errorback);
+      
+      if(self.monitor){ //start monitoring if the bool 'monitor' is true (defaults to false)
+        //console.log('Starting monitor ...');
         self.startMonitoring();
+      }
+        
+    }else{
+        if(errorback)
+            errorback(new Error(error));
     }
   });
 }
 
 //Pipes uploadPipe to self.location (Google's Location header)
-resumableUpload.prototype.putUpload = function(callback) {
+resumableUpload.prototype.putUpload = function(callback, errorback) {
   var self = this;
   var options = {
       url: self.location, //self.location becomes the Google-provided URL to PUT to
@@ -61,17 +81,30 @@ resumableUpload.prototype.putUpload = function(callback) {
     var uploadPipe = fs.createReadStream(self.filepath, {start: self.byteCount, end: fs.statSync(self.filepath).size });
     uploadPipe.pipe(request.put(options, function(error, response, body) {
       if(!error) {
-        callback(body);
+        
+          if(callback)
+            callback(body);
+          
       } else {
-        self.getProgress();
-        self.initUpload();
+            if(errorback)
+                errorback(new Error(error));
+
+            if(self.retry>0){
+                self.retry--;
+                self.getProgress();
+                self.initUpload();
+            }
       }
     }));
   } catch(e) {
-    console.log(e.printStackTrace());
+    //console.log(e.printStackTrace());
     //Restart upload
-    self.getProgress();
-    self.initUpload();
+    if(self.retry>0){
+        self.retry--;
+        self.getProgress();
+        self.initUpload();
+    }
+        
   }
 }
 
@@ -114,7 +147,7 @@ resumableUpload.prototype.getProgress = function() {
     try {
       self.byteCount = response.headers.range.substring(8, response.headers.range.length); //parse response
     } catch(e) {
-      console.log('error');
+      //console.log('error');
     }
   });
 }

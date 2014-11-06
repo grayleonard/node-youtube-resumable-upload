@@ -18,6 +18,9 @@ resumableUpload.eventEmitter.on('progress', function(progress) {
   resumableUpload.initUpload(function(result) {
     console.log(result);
     return;
+  }, function(error){
+    console.log("Upload failed")
+    console.log( error )
   });
 }
 

@@ -23,7 +23,14 @@ var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.filepath = './video.mp4';
   resumableUpload.metadata = metadata; //include the snippet and status for the video
   resumableUpload.monitor = true;
+  resumableUpload.retry = 3; // Maximum retries when upload failed.
   resumableUpload.initUpload(function(result) {
+    //success handler
+    console.log(result);
+  }, function(error){
+    
+    //error handler
+    
     console.log(result);
   });
 ```
