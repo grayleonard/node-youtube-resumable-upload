@@ -19,18 +19,16 @@ Look at test/test.js for a use-case example, but this is the gist of it:
 ```
 var ResumableUpload = require('node-youtube-resumable-upload');
 var resumableUpload = new ResumableUpload(); //create new ResumableUpload
-  resumableUpload.tokens = tokens; //Google OAuth2 tokens
-  resumableUpload.filepath = './video.mp4';
-  resumableUpload.metadata = metadata; //include the snippet and status for the video
-  resumableUpload.monitor = true;
-  resumableUpload.retry = 3; // Maximum retries when upload failed.
-  resumableUpload.initUpload(function(result) {
-    //success handler
-    console.log(result);
-  }, function(error){
-    
-    //error handler
-    
-    console.log(result);
-  });
+resumableUpload.tokens = tokens; //Google OAuth2 tokens
+resumableUpload.filepath = './video.mp4';
+resumableUpload.metadata = metadata; //include the snippet and status for the video
+resumableUpload.monitor = true;
+resumableUpload.retry = 3; // Maximum retries when upload failed.
+resumableUpload.initUpload(function(result) {
+	//success handler
+	console.log(result);
+}, function(error) {
+	//error handler
+	console.log(error);
+});
 ```
