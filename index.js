@@ -50,14 +50,11 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 			//once we get the location to upload to, we start the upload
 			self.putUpload(callback, errorback);
 
-			if (self.monitor) { //start monitoring if the bool 'monitor' is true (defaults to false)
+			if (self.monitor) //start monitoring if the bool 'monitor' is true (defaults to false)
 				self.startMonitoring();
-			}
-
 		} else {
-			if (errorback) {
+			if (errorback)
 				errorback(new Error(error));
-			}
 		}
 	});
 }
@@ -85,16 +82,15 @@ resumableUpload.prototype.putUpload = function(callback, errorback) {
 					callback(body);
 
 			} else {
-				if (errorback) {
+				if (errorback)
 					errorback(new Error(error));
-				}
 
 				if (self.retry > 0) {
 					self.retry--;
 					self.getProgress();
 					self.initUpload();
 				}
-				// Allow or unlimited retries
+				// Allow unlimited retries
 				if (self.retry == -1) {
 					self.getProgress();
 					self.initUpload();
