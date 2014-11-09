@@ -1,15 +1,15 @@
-var fs = require('fs');
-var google = require('googleapis');
-var request = require('request');
-var EventEmitter = require('events').EventEmitter;
+var fs			= require('fs');
+var google		= require('googleapis');
+var request		= require('request');
+var EventEmitter	= require('events').EventEmitter;
 
 function resumableUpload() {
-	this.byteCount = 0; //init variables
-	this.tokens = {};
-	this.filepath = '';
-	this.metadata = {};
-	this.monitor = false;
-	this.retry = -1;
+	this.byteCount	= 0; //init variables
+	this.tokens	= {};
+	this.filepath	= '';
+	this.metadata	= {};
+	this.monitor	= false;
+	this.retry	= -1;
 };
 
 //Init the upload by POSTing google for an upload URL (saved to self.location)
@@ -19,14 +19,14 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 	var self = this;
 
 	var options = {
-		url: 'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status,contentDetails',
+		url:	'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status,contentDetails',
 		headers: {
-			'Host': 'www.googleapis.com',
-			'Authorization': 'Bearer ' + this.tokens.access_token,
-			'Content-Length': JSON.stringify(this.metadata).length,
-			'Content-Type': 'application/json',
-			'X-Upload-Content-Length': fs.statSync(this.filepath).size,
-			'X-Upload-Content-Type': 'video/*'
+		  'Host':			'www.googleapis.com',
+		  'Authorization':		'Bearer ' + this.tokens.access_token,
+		  'Content-Length':		JSON.stringify(this.metadata).length,
+		  'Content-Type':		'application/json',
+		  'X-Upload-Content-Length':	fs.statSync(this.filepath).size,
+		  'X-Upload-Content-Type': 	'video/*'
 		},
 		body: JSON.stringify(this.metadata)
 	};
@@ -65,9 +65,9 @@ resumableUpload.prototype.putUpload = function(callback, errorback) {
 	var options = {
 		url: self.location, //self.location becomes the Google-provided URL to PUT to
 		headers: {
-			'Authorization': 'Bearer ' + self.tokens.access_token,
-			'Content-Length': fs.statSync(self.filepath).size - self.byteCount,
-			'Content-Type': 'video/*'
+		  'Authorization':	'Bearer ' + self.tokens.access_token,
+		  'Content-Length':	fs.statSync(self.filepath).size - self.byteCount,
+		  'Content-Type':	'video/*'
 		}
 	};
 	try {
@@ -113,9 +113,9 @@ resumableUpload.prototype.startMonitoring = function() {
 	var options = {
 		url: self.location,
 		headers: {
-			'Authorization': 'Bearer ' + self.tokens.access_token,
-			'Content-Length': 0,
-			'Content-Range': 'bytes */' + fs.statSync(this.filepath).size
+		  'Authorization':	'Bearer ' + self.tokens.access_token,
+		  'Content-Length':	0,
+		  'Content-Range':	'bytes */' + fs.statSync(this.filepath).size
 		}
 	};
 	var healthCheck = function() { //Get # of bytes uploaded
@@ -137,9 +137,9 @@ resumableUpload.prototype.getProgress = function() {
 	var options = {
 		url: self.location,
 		headers: {
-			'Authorization': 'Bearer ' + self.tokens.access_token,
-			'Content-Length': 0,
-			'Content-Range': 'bytes */' + fs.statSync(this.filepath).size
+		  'Authorization':	'Bearer ' + self.tokens.access_token,
+		  'Content-Length':	0,
+		  'Content-Range':	'bytes */' + fs.statSync(this.filepath).size
 		}
 	};
 	request.put(options, function(error, response, body) {
