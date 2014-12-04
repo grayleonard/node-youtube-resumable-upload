@@ -1,5 +1,4 @@
 var fs			= require('fs');
-var google		= require('googleapis');
 var request		= require('request');
 var EventEmitter	= require('events').EventEmitter;
 
@@ -50,7 +49,7 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 			//once we get the location to upload to, we start the upload
 			self.putUpload(callback, errorback);
 
-			if (self.monitor) //start monitoring if the bool 'monitor' is true (defaults to false)
+			if (self.monitor) //start monitoring (defaults to false)
 				self.startMonitoring();
 		} else {
 			if (errorback)

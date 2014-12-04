@@ -16,7 +16,7 @@ Install with `npm install node-youtube-resumable-upload`
 The module returns the video metadata that Google responds with on a successful upload.
 
 Look at test/test.js for a use-case example, but this is the gist of it:
-```
+```javascript
 var ResumableUpload = require('node-youtube-resumable-upload');
 var resumableUpload = new ResumableUpload(); //create new ResumableUpload
 resumableUpload.tokens = tokens; //Google OAuth2 tokens
