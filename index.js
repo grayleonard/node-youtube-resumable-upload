@@ -63,7 +63,7 @@ resumableUpload.prototype.putUpload = function(callback, errorback) {
 		headers: {
 		  'Authorization':	'Bearer ' + self.tokens.access_token,
 		  'Content-Length':	fs.statSync(self.filepath).size - self.byteCount,
-		  'Content-Type':	'video/*'
+		  'Content-Type':	mime.lookup(self.filepath)
 		}
 	};
 	try {
