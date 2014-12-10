@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "google-auth-cli": "0.0.1",
+    "mime": "^1.2.11",
     "request": "^2.36.0"
   },
   "directories": {

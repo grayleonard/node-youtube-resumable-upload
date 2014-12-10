@@ -1,6 +1,7 @@
 var fs			= require('fs');
 var request		= require('request');
 var EventEmitter	= require('events').EventEmitter;
+var mime		= require('mime');
 
 function resumableUpload() {
 	this.byteCount	= 0; //init variables
@@ -25,7 +26,7 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 		  'Content-Length':		JSON.stringify(this.metadata).length,
 		  'Content-Type':		'application/json',
 		  'X-Upload-Content-Length':	fs.statSync(this.filepath).size,
-		  'X-Upload-Content-Type': 	'video/*'
+		  'X-Upload-Content-Type': 	mime.lookup(this.filepath)
 		},
 		body: JSON.stringify(this.metadata)
 	};
@@ -43,12 +44,8 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 					return;
 				}
 			}
-
 			self.location = response.headers.location;
-
-			//once we get the location to upload to, we start the upload
 			self.putUpload(callback, errorback);
-
 			if (self.monitor) //start monitoring (defaults to false)
 				self.startMonitoring();
 		} else {
@@ -83,7 +80,6 @@ resumableUpload.prototype.putUpload = function(callback, errorback) {
 			} else {
 				if (errorback)
 					errorback(new Error(error));
-
 				if (self.retry > 0) {
 					self.retry--;
 					self.getProgress();

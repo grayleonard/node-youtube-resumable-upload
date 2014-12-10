@@ -1,6 +1,7 @@
 var googleauth = require('google-auth-cli');
 var ResumableUpload = require('../index.js');
 var google_secrets = require('./secrets.json');
+var mime = require('../node_modules/mime/mime.js');
 
 var tokens;
 
@@ -40,6 +41,7 @@ var getTokens = function(callback) {
   });
 };
 
+console.log(mime.lookup('test.mp4'));
 getTokens(function(result) {
   console.log('tokens:' + result);
   tokens = result;
