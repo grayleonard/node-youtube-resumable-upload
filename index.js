@@ -23,7 +23,7 @@ resumableUpload.prototype.initUpload = function(callback, errorback) {
 		headers: {
 		  'Host':			'www.googleapis.com',
 		  'Authorization':		'Bearer ' + this.tokens.access_token,
-		  'Content-Length':		JSON.stringify(this.metadata).length,
+		  'Content-Length':		new Buffer(JSON.stringify(this.metadata)).length,
 		  'Content-Type':		'application/json',
 		  'X-Upload-Content-Length':	fs.statSync(this.filepath).size,
 		  'X-Upload-Content-Type': 	mime.lookup(this.filepath)
