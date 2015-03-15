@@ -132,7 +132,7 @@ resumableUpload.prototype.startMonitoring = function() {
 		request.put(options, function(error, response, body) {
 			if (!error && response.headers.range != undefined) {
 				self.eventEmitter.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + self.size);
-				if (response.headers.range == self.size {
+				if (response.headers.range == self.size){
 					clearInterval(healthCheckInteral);
 				}
 			}
