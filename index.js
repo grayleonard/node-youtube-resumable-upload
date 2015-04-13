@@ -127,9 +127,13 @@ resumableUpload.prototype.startMonitoring = function() {
 	};
 	var healthCheck = function() { //Get # of bytes uploaded
 		request.put(options, function(error, response, body) {
-      console.log('youtube response: ', response);
 			if (!error && response.headers.range != undefined) {
-				self.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + self.size);
+        if(!!response.headers.range){
+  				self.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + self.size);
+        }
+        else{
+          self.emit('progress', response.headers);
+        }
 				if (response.headers.range == self.size) {
 					clearInterval(healthCheckInteral);
 				}
