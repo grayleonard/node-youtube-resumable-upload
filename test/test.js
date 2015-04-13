@@ -9,19 +9,19 @@ var upload = function() {
       status: { privacyStatus: 'private' }};
   var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.tokens	= tokens;
-  resumableUpload.filepath	= 'replace.mp4';
+  resumableUpload.filepath	= 'test/small.mp4';
   resumableUpload.metadata	= metadata;
   resumableUpload.monitor	= true;
   resumableUpload.retry		= -1;  //infinite retries, change to desired amount
-  resumableUpload.eventEmitter.on('progress', function(progress) {
+  resumableUpload.initUpload();
+  resumableUpload.on('progress', function(progress) {
 	console.log(progress);
   });
-  resumableUpload.initUpload(function(result) {
-    console.log(result);
-    return;
-  }, function(error) {
-	console.log("Upload failed");
-	console.log(JSON.stringify(error));
+  resumableUpload.on('error', function(error) {
+	console.log(error);
+  });
+  resumableUpload.on('success', function(success) {
+	  console.log(success);
   });
 }
 
@@ -37,6 +37,7 @@ var getTokens = function(callback) {
   function(err, authClient, tokens) {
     console.log(tokens);
     callback(tokens);
+    return;
   });
 };
 
@@ -44,4 +45,5 @@ getTokens(function(result) {
   console.log('tokens:' + result);
   tokens = result;
   upload();
+  return;
 });
