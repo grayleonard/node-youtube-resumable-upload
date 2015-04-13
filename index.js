@@ -117,6 +117,8 @@ resumableUpload.prototype.putUpload = function(callback, errorback) {
 	}
 }
 
+var healthCheckInterval = null;
+
 //PUT every 5 seconds to get partial # of bytes uploaded
 resumableUpload.prototype.startMonitoring = function() {
 	var self = this;
@@ -130,6 +132,7 @@ resumableUpload.prototype.startMonitoring = function() {
 	};
 	var healthCheck = function() { //Get # of bytes uploaded
 		request.put(options, function(error, response, body) {
+      console.log('youtube response: ', response);
 			if (!error && response.headers.range != undefined) {
 				self.eventEmitter.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + self.size);
 				if (response.headers.range == self.size){
@@ -138,8 +141,12 @@ resumableUpload.prototype.startMonitoring = function() {
 			}
 		});
 	};
-	var healthCheckInterval = setInterval(healthCheck, 5000);
+	healthCheckInterval = setInterval(healthCheck, 5000);
 }
+
+resumableUpload.prototype.clearIntervals = function(){
+  clearInterval(healthCheckInterval);
+};
 
 //If an upload fails, get partial # of bytes. Called by putUpload()
 resumableUpload.prototype.getProgress = function() {
