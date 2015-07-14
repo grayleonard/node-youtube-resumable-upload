@@ -32,6 +32,7 @@ var getTokens = function(callback) {
   },
   {   client_id: google_secrets.client_id, //replace with your client_id and _secret
       client_secret: google_secrets.client_secret,
+      timeout: 60 * 60 * 1000,  // This allows uploads to take up to an hour
       port: 3000
   },
   function(err, authClient, tokens) {
