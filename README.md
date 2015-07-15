@@ -10,7 +10,9 @@ Benchmarked with an 800mb video - this module bypasses the filesize restrictions
 How to Use
 ==========
 
-Requires OAuth2 tokens from google - packages such as `googleapis` (the official nodejs client), `Passport` and `google-auth-cli` can be used.
+Requires OAuth2 tokens from google - packages such as `googleapis` (the official nodejs client) and `Passport` will do the trick.
+
+If you need a more robust CLI OAuth2 solution, I suggest trying [martinheidegger/google-cli-auth](https://github.com/martinheidegger/google-cli-auth) instead of the `google-auth-cli` that is used in this library's test file.
 
 Install with `npm install node-youtube-resumable-upload`
 
