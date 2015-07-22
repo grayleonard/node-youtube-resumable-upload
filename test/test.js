@@ -9,11 +9,11 @@ var upload = function() {
       status: { privacyStatus: 'private' }};
   var resumableUpload = new ResumableUpload(); //create new ResumableUpload
   resumableUpload.tokens	= tokens;
-  resumableUpload.filepath	= 'test/small.mp4';
+  resumableUpload.filepath	= 'thescore.mp4';
   resumableUpload.metadata	= metadata;
   resumableUpload.monitor	= true;
   resumableUpload.retry		= -1;  //infinite retries, change to desired amount
-  resumableUpload.initUpload();
+  resumableUpload.upload();
   resumableUpload.on('progress', function(progress) {
 	console.log(progress);
   });

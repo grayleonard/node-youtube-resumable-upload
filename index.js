@@ -9,50 +9,47 @@ function resumableUpload() {
 	this.tokens	= {};
 	this.filepath	= '';
 	this.metadata	= {};
-	this.monitor	= false;
 	this.retry	= -1;
+	this.host	= 'www.googleapis.com';
+	this.api	= '/upload/youtube/v3/videos';
 };
 
 util.inherits(resumableUpload, EventEmitter);
 
 //Init the upload by POSTing google for an upload URL (saved to self.location)
-resumableUpload.prototype.initUpload = function() {
+resumableUpload.prototype.upload = function() {
 	var self = this;
 	var options = {
-		url:	'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status,contentDetails',
+		url:	'https://' + self.host + self.api + '?uploadType=resumable&part=snippet,status,contentDetails',
 		headers: {
-		  'Host':			'www.googleapis.com',
-		  'Authorization':		'Bearer ' + this.tokens.access_token,
-		  'Content-Length':		new Buffer(JSON.stringify(this.metadata)).length,
+		  'Host':			self.host,
+		  'Authorization':		'Bearer ' + self.tokens.access_token,
+		  'Content-Length':		new Buffer(JSON.stringify(self.metadata)).length,
 		  'Content-Type':		'application/json',
-		  'X-Upload-Content-Length':	fs.statSync(this.filepath).size,
-		  'X-Upload-Content-Type': 	mime.lookup(this.filepath)
+		  'X-Upload-Content-Length':	fs.statSync(self.filepath).size,
+		  'X-Upload-Content-Type': 	mime.lookup(self.filepath)
 		},
-		body: JSON.stringify(this.metadata)
+		body: JSON.stringify(self.metadata)
 	};
 	//Send request and start upload if success
-	request.post(options, function(error, response, body) {
-		if (!error) {
-			if (!response.headers.location && body) {
-				// bad-token, bad-metadata, etc...
-				body = JSON.parse(body);
-				if (body.error) {
-					self.emit('error', new Error(body.error));
-					return;
-				}
+	request.post(options, function(err, res, body) {
+		if (err || !res.headers.location) {
+			self.emit('error', new Error(err));
+			self.emit('progress', 'Retrying ...');
+			if ((retry > 0) || (retry <= -1)) {
+				retry--;
+				self.upload(); // retry
+			} else {
+				return;
 			}
-			self.location = response.headers.location;
-			self.putUpload();
-			if (self.monitor) //start monitoring (defaults to false)
-				self.startMonitoring();
-		} else {
-			self.emit('error', new Error(body.error));
 		}
+		self.location = res.headers.location;
+		self.send();
 	});
 }
 
 //Pipes uploadPipe to self.location (Google's Location header)
-resumableUpload.prototype.putUpload = function() {
+resumableUpload.prototype.send = function() {
 	var self = this;
 	var options = {
 		url: self.location, //self.location becomes the Google-provided URL to PUT to
@@ -68,76 +65,49 @@ resumableUpload.prototype.putUpload = function() {
 			start: self.byteCount,
 			end: fs.statSync(self.filepath).size
 		});
-		uploadPipe.pipe(request.put(options, function(error, response, body) {
-			if (!error) {
-				self.emit('success', body);
-				return;
-			} else {
-				self.emit('error', new Error(error));
-				if (self.retry > 0) {
-					self.retry--;
-					self.getProgress();
-					self.initUpload();
-				}
-				// Allow unlimited retries
-				if (self.retry == -1) {
-					self.getProgress();
-					self.initUpload();
-				}
-			}
-		}));
 	} catch (e) {
-		//Restart upload
-		if (self.retry > 0) {
-			self.retry--;
-			self.getProgress();
-			self.initUpload();
-		}
+		self.emit('error', new Error(e));
+		return;
 	}
-}
-
-//PUT every 5 seconds to get partial # of bytes uploaded
-resumableUpload.prototype.startMonitoring = function() {
-	var self = this;
-	var options = {
-		url: self.location,
-		headers: {
-		  'Authorization':	'Bearer ' + self.tokens.access_token,
-		  'Content-Length':	0,
-		  'Content-Range':	'bytes */' + fs.statSync(this.filepath).size
-		}
-	};
-	var healthCheck = function() { //Get # of bytes uploaded
-		request.put(options, function(error, response, body) {
-			if (!error && response.headers.range != undefined) {
-				self.emit('progress', response.headers.range.substring(8, response.headers.range.length) + '/' + fs.statSync(self.filepath).size);
-				if (response.headers.range == fs.statSync(self.filepath).size) {
-					clearInterval(healthCheckInteral);
-				}
+	var health = setInterval(function(){
+		self.getProgress(function(err, res, body) {
+			if (!err && typeof res.headers.range !== 'undefined') {
+				self.emit('progress', res.headers.range.substring(8));
 			}
 		});
-	};
-	var healthCheckInterval = setInterval(healthCheck, 5000);
+	}, 5000);
+	uploadPipe.pipe(request.put(options, function(error, response, body) {
+		clearInterval(health);
+		if (!error) {
+			self.emit('success', body);
+			return;
+		}
+		self.emit('error', new Error(error));
+		if ((self.retry > 0) || (self.retry <= -1)) {
+			self.retry--;
+			self.getProgress(function(err, res, b) {
+				if (typeof res.headers.range !== 'undefined') {
+					self.byteCount = res.headers.range.substring(8); //parse response
+				} else {
+					self.byteCount = 0;
+				}
+				self.send();
+			});
+		}
+	}));
 }
 
-//If an upload fails, get partial # of bytes. Called by putUpload()
-resumableUpload.prototype.getProgress = function() {
+resumableUpload.prototype.getProgress = function(handler) {
 	var self = this;
 	var options = {
 		url: self.location,
 		headers: {
 		  'Authorization':	'Bearer ' + self.tokens.access_token,
 		  'Content-Length':	0,
-		  'Content-Range':	'bytes */' + fs.statSync(this.filepath).size
+		  'Content-Range':	'bytes */' + fs.statSync(self.filepath).size
 		}
 	};
-	request.put(options, function(error, response, body) {
-		try {
-			self.byteCount = response.headers.range.substring(8, response.headers.range.length); //parse response
-		} catch (e) {
-			self.emit('error', new Error(e));
-		}
-	});
+	request.put(options, handler);
 }
 
 module.exports = resumableUpload;
