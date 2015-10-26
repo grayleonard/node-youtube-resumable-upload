@@ -36,8 +36,8 @@ resumableUpload.prototype.upload = function() {
 		if (err || !res.headers.location) {
 			self.emit('error', new Error(err));
 			self.emit('progress', 'Retrying ...');
-			if ((retry > 0) || (retry <= -1)) {
-				retry--;
+			if ((self.retry > 0) || (self.retry <= -1)) {
+				self.retry--;
 				self.upload(); // retry
 			} else {
 				return;
