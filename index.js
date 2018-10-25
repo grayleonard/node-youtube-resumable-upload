@@ -19,6 +19,10 @@ util.inherits(resumableUpload, EventEmitter);
 //Init the upload by POSTing google for an upload URL (saved to self.location)
 resumableUpload.prototype.upload = function() {
 	var self = this;
+	if ((this.metadata.snippet.title).length > 70) {
+		self.emit('error', new Error("Title cannot be longer than 70 characters"));
+	}
+	
 	var options = {
 		url:	'https://' + self.host + self.api + '?uploadType=resumable&part=snippet,status,contentDetails',
 		headers: {
